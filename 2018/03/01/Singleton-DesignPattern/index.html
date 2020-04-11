@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"stephanietang.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="单例设计模式(Singleton Design Pattern)指的是实现一个类，在应用中只有唯一一个实例。但现在已经成为业界共识，它成为了反模式的代表。这篇文章先讨论实现单例模式的几种方式，然后讨论为什么它是一种反模式。以及它的应用场景。 我们先来讨论单例模式的几种实现方法。 饿汉式(Eager Initialization）12345678910public class EagerInitia">
+<meta property="og:type" content="article">
+<meta property="og:title" content="单例设计模式">
+<meta property="og:url" content="http://stephanietang.github.io/2018/03/01/Singleton-DesignPattern/index.html">
+<meta property="og:site_name" content="Stephanie Tang&#39;s Blog">
+<meta property="og:description" content="单例设计模式(Singleton Design Pattern)指的是实现一个类，在应用中只有唯一一个实例。但现在已经成为业界共识，它成为了反模式的代表。这篇文章先讨论实现单例模式的几种方式，然后讨论为什么它是一种反模式。以及它的应用场景。 我们先来讨论单例模式的几种实现方法。 饿汉式(Eager Initialization）12345678910public class EagerInitia">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2018-03-01T01:22:52.000Z">
+<meta property="article:modified_time" content="2018-06-25T15:32:40.000Z">
+<meta property="article:author" content="Stephanie Tang">
+<meta property="article:tag" content="Singleton">
+<meta property="article:tag" content="DesignPattern">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://stephanietang.github.io/2018/03/01/Singleton-DesignPattern/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>单例设计模式 | Stephanie Tang's Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Stephanie Tang's Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://stephanietang.github.io/2018/03/01/Singleton-DesignPattern/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Stephanie Tang">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Stephanie Tang's Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          单例设计模式
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2018-03-01 09:22:52" itemprop="dateCreated datePublished" datetime="2018-03-01T09:22:52+08:00">2018-03-01</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2018-06-25 23:32:40" itemprop="dateModified" datetime="2018-06-25T23:32:40+08:00">2018-06-25</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>单例设计模式(Singleton Design Pattern)指的是实现一个类，在应用中只有唯一一个实例。但现在已经成为业界共识，它成为了反模式的代表。这篇文章先讨论实现单例模式的几种方式，然后讨论为什么它是一种反模式。以及它的应用场景。</p>
+<p>我们先来讨论单例模式的几种实现方法。</p>
+<h3 id="饿汉式-Eager-Initialization）"><a href="#饿汉式-Eager-Initialization）" class="headerlink" title="饿汉式(Eager Initialization）"></a>饿汉式(Eager Initialization）</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">EagerInitializationSingleton</span> </span>&#123;</span><br><span class="line">	<span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> EagerInitializationSingleton instance = <span class="keyword">new</span> EagerInitializationSingleton();</span><br><span class="line">    </span><br><span class="line">    <span class="comment">//private constructor to avoid client applications to use constructor</span></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="title">EagerInitializationSingleton</span><span class="params">()</span></span>&#123;&#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> EagerInitializationSingleton <span class="title">getInstance</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">return</span> instance;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>第一种写法不算很复杂，因为声明了static和final，在类加载的时候就实例化了，另外将constructor声明为private，也就是不能使用new来创建实例，而只能使用<code>getInstance()</code>来得到唯一的实例，从而保证了只有一个实例。</p>
+<p>但是这种方法的坏处显而易见，它在类加载的时候就初始化了，对于从来没有用过但是创建又需要很多资源的对象，这无疑是一种浪费。于是就有了懒汉式(lazy initialization)。</p>
+<h3 id="双检锁-Double-Checked-Locking"><a href="#双检锁-Double-Checked-Locking" class="headerlink" title="双检锁(Double Checked Locking)"></a>双检锁(Double Checked Locking)</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Double-checked Locking Lazy Initialization</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">DoubleCheckedLockSingleton</span> </span>&#123;</span><br><span class="line">	</span><br><span class="line">	<span class="keyword">private</span> <span class="keyword">volatile</span> <span class="keyword">static</span> DoubleCheckedLockSingleton singleton;</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">private</span> <span class="title">DoubleCheckedLockSingleton</span><span class="params">()</span> </span>&#123;&#125;</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> DoubleCheckedLockSingleton <span class="title">getInstance</span><span class="params">()</span> </span>&#123;</span><br><span class="line">		<span class="keyword">if</span>(singleton == <span class="keyword">null</span>) &#123;</span><br><span class="line">			<span class="keyword">synchronized</span>(DoubleCheckedLockSingleton<span class="class">.<span class="keyword">class</span>) </span>&#123;</span><br><span class="line">				<span class="keyword">if</span>(singleton == <span class="keyword">null</span>) &#123;</span><br><span class="line">					singleton = <span class="keyword">new</span> DoubleCheckedLockSingleton();</span><br><span class="line">				&#125;</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">return</span> singleton;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>第二种双检锁是一种懒汉式——只有调用<code>getInstance()</code>的时候才实例化对象。但逻辑比饿汉式复杂许多，让我们来仔细看一看。<br><code>getInstance()</code>方法中使用了双检锁，这么做避免了同步整个getInstance()方法，因为只是在第一次实例化时需要同步，创建好之后，就可以直接返回已经创建好的singleton了。又是懒汉式，又不需要同步整个getInstance()方法影响性能，开销不算太大。<br>然而这里还有个坑，注意这里的<code>volatile</code>，尽管有了<code>synchronized</code>，但如果没有声明<code>volatile</code>，这个看似完美的方法还是会失效。<br>话说因为<code>singleton = new DoubleCheckedLockSingleton()</code>这个操作实际上含有三个步骤</p>
+<p>(1) 给singleton对象分配内存<br>(2) 调用构造器来初始化成员变量<br>(3) 将singleton对象指向分配好的内存空间(执行这一步之后singleton != null)</p>
+<p>然而JMM中指令是存在重排序的，也就是不能保证(2)和(3)的次序。<br>假设两个线程同时进入第一层<code>if(singleton == null)</code>，假设线程A首先进入了<code>synchronized block</code>，但是执行完<code>singleton = new DoubleCheckedLockSingleton()</code>之后，仅仅只完成了步骤(3)，singleton对象指向分配好的内存空间（并没有完成构造器的初始化工作），然后返回。线程B这时候进入<code>synchronized block</code>，看见singleton已经不等于null了，于是也返回了，然后使用这个没有真正初始化完成的实例，便会有不可预知的问题。<br>所以这里加上<code>volatile</code>之后禁止指令重排，根据happens-before原则，写操作将会先行发生于后面发生的读操作，也就是线程B一定读到的是线程A实例化完整的实例。<br>但是请注意，即使是使用了<code>volatile</code>，在Java 5之前仍旧是有问题的，Java 5之前的JMM<a href="https://www.cs.umd.edu/~pugh/java/memoryModel/DoubleCheckedLocking.html" target="_blank" rel="noopener">有bug</a>，并不能保证禁止重排序。<br>所以对于这么多坑的一种写法，我们明白了原理就算了，能避免就避免吧。</p>
+<h3 id="静态内部类-Static-Inner-Class"><a href="#静态内部类-Static-Inner-Class" class="headerlink" title="静态内部类(Static Inner Class)"></a>静态内部类(Static Inner Class)</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">InnerClassSingleton</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">SingletonHolder</span> </span>&#123;</span><br><span class="line">        <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> InnerClassSingleton INSTANCE = <span class="keyword">new</span> InnerClassSingleton();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="title">InnerClassSingleton</span> <span class="params">()</span></span>&#123;&#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> InnerClassSingleton <span class="title">getInstance</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> SingletonHolder.INSTANCE;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这种写法也是懒汉式的，同时读取实例的时候不会进行同步，没有性能缺陷，也不依赖JDK版本。完美！</p>
+<h3 id="Enum"><a href="#Enum" class="headerlink" title="Enum"></a>Enum</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">enum</span> EnumSingleton &#123;</span><br><span class="line"></span><br><span class="line">    INSTANCE;</span><br><span class="line">    </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这种写法太简单了！有没有！它也是懒汉式的，天然的保证了线程安全，天然的不需要同步，不过当然需要Java 5以上的版本啦（Java 5之前也得有enum才行啊！），也是《Effective Java》上推荐的方法。</p>
+<h3 id="性能比较"><a href="#性能比较" class="headerlink" title="性能比较"></a>性能比较</h3><p>这里有一篇关于几种写法的性能比较：<a href="http://literatejava.com/jvm/fastest-threadsafe-singleton-jvm/" target="_blank" rel="noopener">Fastest Thread-safe Singleton in Java</a></p>
+<p>但是没有出乎意料，对于懒汉式的写法中，静态内部类 &gt; 双检锁 &gt; synchronized getInstance方法（本文没有讨论，因为性能实在是堪忧）。这里没有比较enum，留给有兴趣的童鞋吧。</p>
+<p>如果一定要实现一个单例设计模式，就我而言，我会采用enum的写法。</p>
+<h2 id="为什么单例模式是一个反模式？"><a href="#为什么单例模式是一个反模式？" class="headerlink" title="为什么单例模式是一个反模式？"></a>为什么单例模式是一个反模式？</h2><p>那么讨论完单例模式的几种实现方法，我们再来说明为什么它已然已经成为业界共识的反模式了。纳尼？前面铺垫那么多，不是白讨论了吗？！虽然是浪费了很多口舌，但是单例模式依然有他的应用场景，我们后面会说。</p>
+<p>首先我们要搞清楚两个概念：单例模式和单例。前者是一种设计模式，它的特征是：1)私有的构造器，2)通过<code>Singleton.getInstance()</code>方法获得该类的唯一实例。而单例指的是一个类有且只有一个实例，可以通过依赖注入来实现。Spring中，我们常用的service或者dao通常就是典型的单例，它们通过BeanFactory来进行依赖注入，来保证应用中引用的都是一个类的同一个实例。</p>
+<p>要注意的是，Spring中默认的singleton scope和严格意义上单例还是有区别的，来自Spring的文档中指出：</p>
+<blockquote>
+<p>When a bean is a singleton, only one shared instance of the bean will be managed and all requests for beans with an id or ids matching that bean definition will result in that one specific bean instance being returned.</p>
+</blockquote>
+<p>也就是说你在Spring中定义了singleton的使用范围，并不能保证你的bean在应用中是绝对的唯一实例，因为这个bean通常有公有的构造器，你完全可以绕过Spring而<code>new</code>一个实例。</p>
+<p>单例模式之所以是一个反模式，是因为：</p>
+<ul>
+<li>它通常是一个复杂的object，维护着一个全局的状态，而全局的状态使得结果不可预测</li>
+<li>由于是私有构造器，单元测试变得困难</li>
+</ul>
+<h2 id="应用场景"><a href="#应用场景" class="headerlink" title="应用场景"></a>应用场景</h2><p>基本的原则就是<strong>不要自己实现单例模式</strong>，然而依然有场景（为数不多的）适合使用单例模式，譬如logging：</p>
+<ul>
+<li>客户代码需要一个全局的logging service来发送请求去写log</li>
+<li>多个监听器(listener)可以注册同一个logging service</li>
+<li>虽然不同的应用会有不同的输出，它们注册监听器的方法是一样的，它们可以定制监听器来实现不同的配置，客户代码不需要知道log在哪里或如何写log的</li>
+</ul>
+<p>参考：</p>
+<ul>
+<li><a href="http://wuchong.me/blog/2014/08/28/how-to-correctly-write-singleton-pattern/" target="_blank" rel="noopener">如何正确地写出单例模式</a></li>
+<li><a href="https://www.cs.umd.edu/~pugh/java/memoryModel/DoubleCheckedLocking.html" target="_blank" rel="noopener">The “Double-Checked Locking is Broken” Declaration</a></li>
+<li><a href="http://literatejava.com/jvm/fastest-threadsafe-singleton-jvm/" target="_blank" rel="noopener">Fastest Thread-safe Singleton in Java</a></li>
+<li><a href="http://misko.hevery.com/2008/08/17/singletons-are-pathological-liars/" target="_blank" rel="noopener">Singletons are Pathological Liars</a></li>
+<li><a href="http://misko.hevery.com/2008/08/21/where-have-all-the-singletons-gone/" target="_blank" rel="noopener">Where Have All the Singletons Gone?</a></li>
+<li><a href="http://misko.hevery.com/2008/08/25/root-cause-of-singletons/" target="_blank" rel="noopener">Root Cause of Singletons</a></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Singleton/" rel="tag"># Singleton</a>
+              <a href="/tags/DesignPattern/" rel="tag"># DesignPattern</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2017/12/02/ThreadLocal/" rel="prev" title="深入理解Java中的ThreadLocal">
+      <i class="fa fa-chevron-left"></i> 深入理解Java中的ThreadLocal
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2018/06/25/SSL/" rel="next" title="SSL的工作原理">
+      SSL的工作原理 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#饿汉式-Eager-Initialization）"><span class="nav-number">1.</span> <span class="nav-text">饿汉式(Eager Initialization）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#双检锁-Double-Checked-Locking"><span class="nav-number">2.</span> <span class="nav-text">双检锁(Double Checked Locking)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#静态内部类-Static-Inner-Class"><span class="nav-number">3.</span> <span class="nav-text">静态内部类(Static Inner Class)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Enum"><span class="nav-number">4.</span> <span class="nav-text">Enum</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#性能比较"><span class="nav-number">5.</span> <span class="nav-text">性能比较</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#为什么单例模式是一个反模式？"><span class="nav-number"></span> <span class="nav-text">为什么单例模式是一个反模式？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#应用场景"><span class="nav-number"></span> <span class="nav-text">应用场景</span></a></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Stephanie Tang</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">5</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">10</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Stephanie Tang</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

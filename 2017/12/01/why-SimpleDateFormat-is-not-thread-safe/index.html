@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"stephanietang.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="为什么SimpleDateFormat不是线程安全的我们用一个简单的例子来说明： 1234567891011121314151617181920212223242526272829303132import java.text.DateFormat;import java.text.SimpleDateFormat;public class SimpleDateFormatNotThreadSafe">
+<meta property="og:type" content="article">
+<meta property="og:title" content="为什么SimpleDateFormat不是线程安全的">
+<meta property="og:url" content="http://stephanietang.github.io/2017/12/01/why-SimpleDateFormat-is-not-thread-safe/index.html">
+<meta property="og:site_name" content="Stephanie Tang&#39;s Blog">
+<meta property="og:description" content="为什么SimpleDateFormat不是线程安全的我们用一个简单的例子来说明： 1234567891011121314151617181920212223242526272829303132import java.text.DateFormat;import java.text.SimpleDateFormat;public class SimpleDateFormatNotThreadSafe">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://1.bp.blogspot.com/_tWwHCKnIbjs/TDndNvP6o4I/AAAAAAAAAAQ/lEUc81qwLqY/s1600/chart.png">
+<meta property="article:published_time" content="2017-12-01T03:12:05.000Z">
+<meta property="article:modified_time" content="2017-12-02T01:56:06.000Z">
+<meta property="article:author" content="Stephanie Tang">
+<meta property="article:tag" content="Java Core">
+<meta property="article:tag" content="SimpleDateFormat">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://1.bp.blogspot.com/_tWwHCKnIbjs/TDndNvP6o4I/AAAAAAAAAAQ/lEUc81qwLqY/s1600/chart.png">
+
+<link rel="canonical" href="http://stephanietang.github.io/2017/12/01/why-SimpleDateFormat-is-not-thread-safe/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>为什么SimpleDateFormat不是线程安全的 | Stephanie Tang's Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Stephanie Tang's Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://stephanietang.github.io/2017/12/01/why-SimpleDateFormat-is-not-thread-safe/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Stephanie Tang">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Stephanie Tang's Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          为什么SimpleDateFormat不是线程安全的
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2017-12-01 11:12:05" itemprop="dateCreated datePublished" datetime="2017-12-01T11:12:05+08:00">2017-12-01</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2017-12-02 09:56:06" itemprop="dateModified" datetime="2017-12-02T09:56:06+08:00">2017-12-02</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="为什么SimpleDateFormat不是线程安全的"><a href="#为什么SimpleDateFormat不是线程安全的" class="headerlink" title="为什么SimpleDateFormat不是线程安全的"></a>为什么SimpleDateFormat不是线程安全的</h2><p>我们用一个简单的例子来说明：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.text.DateFormat;</span><br><span class="line"><span class="keyword">import</span> java.text.SimpleDateFormat;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SimpleDateFormatNotThreadSafe</span> </span>&#123;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> DateFormat FORMAT = <span class="keyword">new</span> SimpleDateFormat(<span class="string">"yyyy-MM-dd"</span>);</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span> <span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">1</span> ; i &lt; <span class="number">10</span>; i++) &#123;</span><br><span class="line">            Thread t = <span class="keyword">new</span> MyThread(String.valueOf(i));</span><br><span class="line">            t.start();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">MyThread</span> <span class="keyword">extends</span> <span class="title">Thread</span> </span>&#123;</span><br><span class="line">        </span><br><span class="line">        MyThread(String threadName) &#123;</span><br><span class="line">            <span class="keyword">super</span>(threadName);</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">            <span class="keyword">try</span>&#123;</span><br><span class="line">                System.out.println(<span class="string">"Created Thread "</span> + getName() + <span class="string">", "</span>+ FORMAT.parse(<span class="string">"2016-01-01"</span>));</span><br><span class="line">            &#125; <span class="keyword">catch</span>( Exception e)&#123;</span><br><span class="line">                e.printStackTrace();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>基于是多线程程序，线程运行的先后不可预知。但是奇怪的事情发生了，连可预知的<code>FORMAT.parse(&quot;2016-01-01&quot;)</code>也出现了奇怪的结果。</p>
+<p>以下是几个可能出现的错误结果：</p>
+<p>错误结果1</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">Created Thread 2, Wed Jan 01 00:00:00 HKT 2200</span><br><span class="line">Created Thread 6, Fri Jan 01 00:00:00 HKT 2016</span><br><span class="line">Created Thread 7, Fri Jan 01 00:00:00 HKT 2016</span><br><span class="line">Created Thread 8, Fri Jan 01 00:00:00 HKT 2016</span><br><span class="line">Created Thread 4, Fri Jan 01 00:00:00 HKT 2016</span><br><span class="line">Created Thread 3, Fri Jan 01 00:00:00 HKT 2016</span><br><span class="line">Created Thread 9, Fri Jan 01 00:00:00 HKT 2016</span><br><span class="line">Created Thread 0, Wed Jan 01 00:00:00 HKT 2200</span><br><span class="line">Created Thread 1, Fri Jan 01 00:00:00 HKT 2016</span><br><span class="line">Created Thread 5, Fri Jan 01 00:00:00 HKT 2016</span><br></pre></td></tr></table></figure>
+
+<p>错误结果2</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">Created Thread 1, Sat May 26 09:34:08 HKT 164390675</span><br><span class="line">Created Thread 3, Fri Jan 01 00:00:00 HKT 2016</span><br><span class="line">Created Thread 4, Fri Jan 01 00:00:00 HKT 2016</span><br><span class="line">Created Thread 0, Fri Jan 01 00:00:00 HKT 42016</span><br><span class="line">Created Thread 5, Fri Jan 01 00:00:00 HKT 2016</span><br><span class="line">Created Thread 6, Fri Jan 01 00:00:00 HKT 2016</span><br><span class="line">Created Thread 2, Fri Jan 01 00:00:00 HKT 42016</span><br><span class="line">Created Thread 7, Fri Jan 01 00:00:00 HKT 2016</span><br><span class="line">java.lang.NumberFormatException: multiple points</span><br><span class="line">    at sun.misc.FloatingDecimal.readJavaFormatString(FloatingDecimal.java:1110)</span><br><span class="line">    at java.lang.Double.parseDouble(Double.java:540)</span><br><span class="line">    at java.text.DigitList.getDouble(DigitList.java:168)</span><br><span class="line">    at java.text.DecimalFormat.parse(DecimalFormat.java:1321)</span><br><span class="line">    at java.text.SimpleDateFormat.subParse(SimpleDateFormat.java:2088)</span><br><span class="line">    at java.text.SimpleDateFormat.parse(SimpleDateFormat.java:1455)</span><br><span class="line">    at java.text.DateFormat.parse(DateFormat.java:355)</span><br><span class="line">    at com.examples.tutorials.SimpleDateFormatNotThreadSafe$MyThread.run(SimpleDateFormatNotThreadSafe.java:27)</span><br><span class="line">java.lang.NumberFormatException: multiple points</span><br><span class="line">    at sun.misc.FloatingDecimal.readJavaFormatString(FloatingDecimal.java:1110)</span><br><span class="line">    at java.lang.Double.parseDouble(Double.java:540)</span><br><span class="line">    at java.text.DigitList.getDouble(DigitList.java:168)</span><br><span class="line">    at java.text.DecimalFormat.parse(DecimalFormat.java:1321)</span><br><span class="line">    at java.text.SimpleDateFormat.subParse(SimpleDateFormat.java:1793)</span><br><span class="line">    at java.text.SimpleDateFormat.parse(SimpleDateFormat.java:1455)</span><br><span class="line">    at java.text.DateFormat.parse(DateFormat.java:355)</span><br><span class="line">    at com.examples.tutorials.SimpleDateFormatNotThreadSafe$MyThread.run(SimpleDateFormatNotThreadSafe.java:27)</span><br></pre></td></tr></table></figure>
+
+<p>错误结果3</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">java.lang.NumberFormatException: For input string: &quot;.11E.111E&quot;</span><br><span class="line">    at sun.misc.FloatingDecimal.readJavaFormatString(FloatingDecimal.java:1250)</span><br><span class="line">    at java.lang.Double.parseDouble(Double.java:540)</span><br><span class="line">    at java.text.DigitList.getDouble(DigitList.java:168)</span><br><span class="line">    at java.text.DecimalFormat.parse(DecimalFormat.java:1321)</span><br><span class="line">    at java.text.SimpleDateFormat.subParse(SimpleDateFormat.java:1793)</span><br><span class="line">    at java.text.SimpleDateFormat.parse(SimpleDateFormat.java:1455)</span><br><span class="line">    at java.text.DateFormat.parse(DateFormat.java:355)</span><br><span class="line">    at com.examples.tutorials.SimpleDateFormatNotThreadSafe$MyThread.run(SimpleDateFormatNotThreadSafe.java:27)</span><br><span class="line">java.lang.NumberFormatException: For input string: &quot;.11E.111E1&quot;</span><br><span class="line">    at sun.misc.FloatingDecimal.readJavaFormatString(FloatingDecimal.java:1250)</span><br><span class="line">    at java.lang.Double.parseDouble(Double.java:540)</span><br><span class="line">    at java.text.DigitList.getDouble(DigitList.java:168)</span><br><span class="line">    at java.text.DecimalFormat.parse(DecimalFormat.java:1321)</span><br><span class="line">    at java.text.SimpleDateFormat.subParse(SimpleDateFormat.java:1793)</span><br><span class="line">    at java.text.SimpleDateFormat.parse(SimpleDateFormat.java:1455)</span><br><span class="line">    at java.text.DateFormat.parse(DateFormat.java:355)</span><br><span class="line">    at com.examples.tutorials.SimpleDateFormatNotThreadSafe$MyThread.run(SimpleDateFormatNotThreadSafe.java:27)</span><br><span class="line">Created Thread 1, Fri Jan 01 00:00:00 HKT 2016</span><br><span class="line">Created Thread 6, Fri Jan 01 00:00:00 HKT 2016</span><br><span class="line">Created Thread 3, Fri Jan 01 00:00:00 HKT 2016</span><br><span class="line">Created Thread 5, Fri Jan 01 00:00:00 HKT 2016</span><br><span class="line">Created Thread 4, Fri Jan 01 00:00:00 HKT 2016</span><br><span class="line">Created Thread 7, Fri Jan 01 00:00:00 HKT 2016</span><br><span class="line">Created Thread 8, Fri Jan 01 00:00:00 HKT 2016</span><br><span class="line">Created Thread 9, Fri Jan 01 00:00:00 HKT 2016</span><br></pre></td></tr></table></figure>
+
+<p>这正是因为SimpleDateFormat是非线程安全所导致的，这应该是设计者的错误。但是基于向后兼容，JDK中一直没有将它改为线程安全。然后Java 8引入了新的类解决了这一问题，下面会进行详细阐述。<br>从SimpleteDateFormat的<a href="http://developer.classpath.org/doc/java/text/SimpleDateFormat-source.html" target="_blank" rel="noopener">源代码</a>中可以知道，<code>parse(..)</code>的时候，首先会<code>calender.clear()</code>，然后会<code>calender.set(..)</code>。如果一个线程<code>parse(..)</code>还没有返回，另一个线程也进入了<code>parse(..)</code>并进行了<code>calender.clear()</code>，那么第一个线程将会得到意想不到的结果。</p>
+<p>所以在SimpleDateFormat的文档中，也做了说明：</p>
+<blockquote>
+<p>Date formats are not synchronized. It is recommended to create separate format instances for each thread. If multiple threads access a format concurrently, it must be synchronized externally.</p>
+</blockquote>
+<h2 id="如何写出线程安全的date-formatter"><a href="#如何写出线程安全的date-formatter" class="headerlink" title="如何写出线程安全的date formatter"></a>如何写出线程安全的date formatter</h2><p>针对写出线程安全的date formatter，在Java 8之前主要有三种方法:</p>
+<ul>
+<li>每个线程使用单独的DateFormat实例</li>
+<li>使用synchronized进行同步</li>
+<li>使用ThreadLocal</li>
+</ul>
+<h3 id="每个线程使用单独的DateFormat实例"><a href="#每个线程使用单独的DateFormat实例" class="headerlink" title="每个线程使用单独的DateFormat实例"></a>每个线程使用单独的DateFormat实例</h3><p>在每个线程里，创建一个新的DateFormat实例。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.text.DateFormat;</span><br><span class="line"><span class="keyword">import</span> java.text.ParseException;</span><br><span class="line"><span class="keyword">import</span> java.text.SimpleDateFormat;</span><br><span class="line"><span class="keyword">import</span> java.util.Date;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SimpleDateFormatThreadSafe</span> </span>&#123;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">public</span> Date <span class="title">convertStringToDate</span><span class="params">(String dateString)</span> <span class="keyword">throws</span> ParseException </span>&#123;</span><br><span class="line">        DateFormat df = <span class="keyword">new</span> SimpleDateFormat(<span class="string">"yyyy-MM-dd"</span>);</span><br><span class="line">        <span class="keyword">return</span> df.parse(dateString);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这种方法虽然实现起来很简单，但是效率非常的低。</p>
+<h3 id="使用synchronized进行同步"><a href="#使用synchronized进行同步" class="headerlink" title="使用synchronized进行同步"></a>使用synchronized进行同步</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.text.DateFormat;</span><br><span class="line"><span class="keyword">import</span> java.text.ParseException;</span><br><span class="line"><span class="keyword">import</span> java.text.SimpleDateFormat;</span><br><span class="line"><span class="keyword">import</span> java.util.Date;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SimpleDateFormatThreadSafeSynchronized</span> </span>&#123;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> DateFormat FORMAT = <span class="keyword">new</span> SimpleDateFormat(<span class="string">"yyyy-MM-dd"</span>);</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Date <span class="title">convertStringToDate</span><span class="params">(String dateString)</span> <span class="keyword">throws</span> ParseException </span>&#123;</span><br><span class="line">        Date result;</span><br><span class="line">        <span class="keyword">synchronized</span>(FORMAT) &#123;</span><br><span class="line">            result = FORMAT.parse(dateString);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> result;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="使用ThreadLocal"><a href="#使用ThreadLocal" class="headerlink" title="使用ThreadLocal"></a>使用ThreadLocal</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.text.DateFormat;</span><br><span class="line"><span class="keyword">import</span> java.text.SimpleDateFormat;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ThreadLocalThreadSafe</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> ThreadLocal&lt;DateFormat&gt; FORMAT = <span class="keyword">new</span> ThreadLocal&lt;DateFormat&gt;()&#123;</span><br><span class="line">        </span><br><span class="line">        <span class="meta">@Override</span> </span><br><span class="line">        <span class="function"><span class="keyword">protected</span> DateFormat <span class="title">initialValue</span><span class="params">()</span></span>&#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">new</span> SimpleDateFormat(<span class="string">"yyyy-MM-dd"</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">public</span> Date <span class="title">convertStringToDate</span><span class="params">(String dateString)</span> <span class="keyword">throws</span> ParseException </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> FORMAT.get().parse(dateString);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="以上三种方法的性能测试"><a href="#以上三种方法的性能测试" class="headerlink" title="以上三种方法的性能测试"></a>以上三种方法的性能测试</h3><p><a href="https://www.javacodegeeks.com/2010/07/java-best-practices-dateformat-in.html" target="_blank" rel="noopener">有人</a>针对以上的三种方法进行了性能测试，性能排序为：</p>
+<p>使用ThreadLocal &gt; 使用synchronized进行同步 &gt; 每个线程使用单独的DateFormat实例</p>
+<p><strong>但是需要指出的是ThreadLocal的性能是在有线程池的情况下，假如没有线程池，和每个线程单独new一个DateFormat实例是没有区别的</strong></p>
+<p><img src="http://1.bp.blogspot.com/_tWwHCKnIbjs/TDndNvP6o4I/AAAAAAAAAAQ/lEUc81qwLqY/s1600/chart.png" alt="性能排序"></p>
+<blockquote>
+<p>所以我建议，多线程环境下，最好不用使用SimpleDateFormat，无论哪种方法都会写一些多余的代码，性能也不见得好。</p>
+</blockquote>
+<h3 id="线程安全的Date-Formatter"><a href="#线程安全的Date-Formatter" class="headerlink" title="线程安全的Date Formatter"></a>线程安全的Date Formatter</h3><p>在Java 8之前的Java版本，我们可以考虑使用线程安全的类</p>
+<ul>
+<li>apache commons中的<a href="https://commons.apache.org/proper/commons-lang/javadocs/api-2.6/org/apache/commons/lang/time/FastDateFormat.html" target="_blank" rel="noopener">FastDateFormat</a></li>
+<li>joda-time中的<a href="http://www.joda.org/joda-time/apidocs/org/joda/time/format/DateTimeFormat.html" target="_blank" rel="noopener">DateTimeFormat</a></li>
+</ul>
+<h3 id="Java-8中的DateTimeFormatter"><a href="#Java-8中的DateTimeFormatter" class="headerlink" title="Java 8中的DateTimeFormatter"></a>Java 8中的DateTimeFormatter</h3><p>Java 8中引入了新的包<code>java.time</code>，完美的解决了线程不安全的问题。</p>
+<p>将字符串转换成<code>java.time.LocalDate</code>:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">DateTimeFormatter formatter = DateTimeFormatter.ofPattern(<span class="string">"yyyy-MM-dd"</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">//convert String to LocalDate</span></span><br><span class="line">LocalDate localDate = LocalDate.parse(<span class="string">"2016-01-01"</span>, formatter);</span><br><span class="line"></span><br><span class="line">System.out.println(localDate);</span><br></pre></td></tr></table></figure>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Java-Core/" rel="tag"># Java Core</a>
+              <a href="/tags/SimpleDateFormat/" rel="tag"># SimpleDateFormat</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2017/11/30/blog-from-today/" rel="prev" title="从今天开始写博客">
+      <i class="fa fa-chevron-left"></i> 从今天开始写博客
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2017/12/02/ThreadLocal/" rel="next" title="深入理解Java中的ThreadLocal">
+      深入理解Java中的ThreadLocal <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#为什么SimpleDateFormat不是线程安全的"><span class="nav-number">1.</span> <span class="nav-text">为什么SimpleDateFormat不是线程安全的</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#如何写出线程安全的date-formatter"><span class="nav-number">2.</span> <span class="nav-text">如何写出线程安全的date formatter</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#每个线程使用单独的DateFormat实例"><span class="nav-number">2.1.</span> <span class="nav-text">每个线程使用单独的DateFormat实例</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#使用synchronized进行同步"><span class="nav-number">2.2.</span> <span class="nav-text">使用synchronized进行同步</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#使用ThreadLocal"><span class="nav-number">2.3.</span> <span class="nav-text">使用ThreadLocal</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#以上三种方法的性能测试"><span class="nav-number">2.4.</span> <span class="nav-text">以上三种方法的性能测试</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#线程安全的Date-Formatter"><span class="nav-number">2.5.</span> <span class="nav-text">线程安全的Date Formatter</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Java-8中的DateTimeFormatter"><span class="nav-number">2.6.</span> <span class="nav-text">Java 8中的DateTimeFormatter</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Stephanie Tang</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">5</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">10</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Stephanie Tang</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
