@@ -259,6 +259,220 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://stephanietang.github.io/2020/04/13/Cache-Patterns/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Stephanie Tang">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Stephanie Tang's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2020/04/13/Cache-Patterns/" itemprop="url">缓存模式以及缓存的数据一致性</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-04-13T21:45:00+08:00">
+                2020-04-13
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>缓存由于其高性能，支持高并发以及高可用的特性，在高并发的项目中不可或缺。被大家广泛使用的有Redis，Memcached等。本文主要探讨几种常见的缓存的读写模式，以及如何来保证缓存和数据库的数据一致性。</p>
+<h2 id="Cache-Aside"><a href="#Cache-Aside" class="headerlink" title="Cache-Aside"></a>Cache-Aside</h2><p>Cache-Aside可能是系统中最常见的一种模式。它是一种控制逻辑都实现在应用程序中的模式。缓存不和数据库直接进行交互，而是由应用程序来同时和缓存以及数据库打交道。Cache-Aside的名字正体现了这个模式，Cache在应用的一旁(aside)。</p>
+<p>读数据时</p>
+<ol>
+<li>程序需要判断缓存中是否已经存在数据。</li>
+<li>当缓存中已经存在数据(也就是缓存命中，cache hit)，则直接从缓存中返回数据</li>
+<li>当缓存中不存在数据(也就是缓存未命中，cache miss)，则先从数据库里读取数据，并且存入缓存，然后返回数据</li>
+</ol>
+<p><img src="https://i.niupic.com/images/2020/04/13/7oXo.PNG" alt="Cache Aside Read"></p>
+<p>写数据时，我们可以有以下两种策略：</p>
+<p>第一种策略：</p>
+<ol>
+<li>更新数据库</li>
+<li>更新缓存</li>
+</ol>
+<p>但这种策略有线程安全的问题，可能出现缓存和数据库不一致。试想有两个写的线程，线程A和线程B</p>
+<ol>
+<li>A写数据库</li>
+<li>B后于A写数据库</li>
+<li>B写缓存</li>
+<li>A写缓存</li>
+<li>缓存和数据库中的数据不一致，缓存中的是脏数据</li>
+</ol>
+<p>要解决线程安全的问题，我们可以加锁，不过实现起来比较麻烦，因此我们不考虑这种写策略，而使用第二种策略。</p>
+<p>第二种策略：</p>
+<ol>
+<li>更新数据库</li>
+<li>删除缓存中对应的数据</li>
+</ol>
+<p><img src="https://i.niupic.com/images/2020/04/13/7oXC.PNG" alt="Cache Aside Write"></p>
+<p>那么这种写策略会有线程安全的问题吗？有，试想一下有两个线程，线程A读，线程B写</p>
+<ol>
+<li>A读数据，由于未命中那么从数据库中取数据</li>
+<li>B写数据库</li>
+<li>B删除缓存</li>
+<li>A由于网络延迟比较慢，将脏数据写入缓存</li>
+</ol>
+<p>但是这种情况可能性非常的小，需要同时满足很多条件，近乎不太可能发生，所以我们一般都采用这种写策略。另外可以对缓存中的数据设置合适的过期时间，即使发生的脏数据的情况，也不会发生很长时间。</p>
+<h3 id="应用场景"><a href="#应用场景" class="headerlink" title="应用场景"></a>应用场景</h3><p>应用于缓存不支持Read-Through/Write-Through的系统。</p>
+<h3 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h3><ul>
+<li>缓存仅仅保存被请求的数据，属于懒加载模式(Lazy Loading)，和下文的Write-Through模式相比，避免了任何数据都被写入缓存造成缓存频繁的更新。</li>
+</ul>
+<h3 id="缺点"><a href="#缺点" class="headerlink" title="缺点"></a>缺点</h3><ul>
+<li><p>当发生缓存未命中的情况时，则会比较慢，因为要经过三个步骤：查询缓存，从数据库读取，写入缓存。</p>
+</li>
+<li><p>复杂的逻辑都在应用程序中，如果实现微服务，多个微服务中会有重复的逻辑代码</p>
+</li>
+</ul>
+<h2 id="Read-Through-Write-Through"><a href="#Read-Through-Write-Through" class="headerlink" title="Read-Through/Write-Through"></a>Read-Through/Write-Through</h2><p>这种模式中，应用程序将缓存作为主要的数据源，而数据库对于应用程序是透明的，更新数据库和从数据库的读取的任务都交给缓存来代理了，所以对于应用程序来说，简单很多。</p>
+<h3 id="Read-Through"><a href="#Read-Through" class="headerlink" title="Read-Through"></a>Read-Through</h3><p>由缓存配置一个读模块，它知道如何将数据库中的数据写入缓存。在数据被请求的时候，如果未命中，则将数据从数据库载入缓存。</p>
+<p><img src="https://i.niupic.com/images/2020/04/13/7pf1.PNG" alt="Read Through"></p>
+<h3 id="Write-Through"><a href="#Write-Through" class="headerlink" title="Write-Through"></a>Write-Through</h3><p>缓存配置一个写模块，它知道如何将数据写入数据库。当应用要写入数据时，缓存会先存储数据，并调用写模块将数据写入数据库。</p>
+<p><img src="https://i.niupic.com/images/2020/04/13/7pfb.PNG" alt="Write Through"></p>
+<h3 id="应用场景-1"><a href="#应用场景-1" class="headerlink" title="应用场景"></a>应用场景</h3><p>Read Through/Write Through适用于写入之后经常被读取的应用。</p>
+<h3 id="优点-1"><a href="#优点-1" class="headerlink" title="优点"></a>优点</h3><ul>
+<li><p>缓存不存在脏数据</p>
+</li>
+<li><p>相比较Cache-Aside懒加载模式，读取速度更高，因为较少因为缓存未命中而从数据库中查找</p>
+</li>
+<li><p>应用程序的逻辑相对简单</p>
+</li>
+</ul>
+<h3 id="缺点-1"><a href="#缺点-1" class="headerlink" title="缺点"></a>缺点</h3><ul>
+<li>对于总是写入却很少被读取的应用，那么Write-Through会非常浪费性能，因为数据可能更改了很多次，却没有被读取，白白的每次都写入缓存造成写入延迟。</li>
+</ul>
+<p>除了Write-Through以外，我们还有另外的两种写模式可以和Read-Through一起来配合使用，分别是Write-Back和Write-Around。</p>
+<h2 id="Write-Back"><a href="#Write-Back" class="headerlink" title="Write-Back"></a>Write-Back</h2><p>又叫做Write-Behind。和Write-Through写入的时机不同，Write-Back将缓存作为可靠的数据源，每次都只写入缓存，而写入数据库则采用异步的方式，比如当数据要被移除出缓存的时候再存储到数据库或者一段时间之后批量更新数据库。</p>
+<p><img src="https://i.niupic.com/images/2020/04/13/7pg5.PNG" alt="Write Back"></p>
+<h3 id="应用场景-2"><a href="#应用场景-2" class="headerlink" title="应用场景"></a>应用场景</h3><p>读写效率都非常好，写的时候因为异步存储到数据库，提升了写的效率，适用于读写密集的应用。</p>
+<h3 id="优点-2"><a href="#优点-2" class="headerlink" title="优点"></a>优点</h3><ul>
+<li><p>写入和读取数据都非常的快，因为都是从缓存中直接读取和写入。</p>
+</li>
+<li><p>对于数据库不可用的情况有一定的容忍度，即使数据库暂时不可用，系统也整体可用，当数据库之后恢复的时候，再将数据写入数据库。</p>
+</li>
+</ul>
+<h3 id="缺点-2"><a href="#缺点-2" class="headerlink" title="缺点"></a>缺点</h3><ul>
+<li>有数据丢失的风险，如果缓存挂掉而数据没有及时写到数据库中，那么缓存中的有些数据将永久的丢失了</li>
+</ul>
+<h2 id="Write-Around"><a href="#Write-Around" class="headerlink" title="Write-Around"></a>Write-Around</h2><p>和Write-Through不同，更新的时候只写入数据库，不写入缓存，结合Read-Through或者Cache-Aside使用，只在缓存未命中的情况下写缓存。</p>
+<p><img src="https://i.niupic.com/images/2020/04/13/7pga.PNG" alt="Write Around"></p>
+<h3 id="应用场景-3"><a href="#应用场景-3" class="headerlink" title="应用场景"></a>应用场景</h3><p>适合于只写入一次而很少被读取的应用。</p>
+<h3 id="优点-3"><a href="#优点-3" class="headerlink" title="优点"></a>优点</h3><ul>
+<li>相比较Write-Through写入的时候的效率较高，如果数据写入后很少被读取，缓存也不会被没用到的数据占满。</li>
+</ul>
+<h3 id="缺点-3"><a href="#缺点-3" class="headerlink" title="缺点"></a>缺点</h3><ul>
+<li>如果数据会写入多次，那么可能存在缓存和数据库不一致</li>
+</ul>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ul>
+<li><a href="https://shahriar.svbtle.com/Understanding-writethrough-writearound-and-writeback-caching-with-python" target="_blank" rel="noopener">https://shahriar.svbtle.com/Understanding-writethrough-writearound-and-writeback-caching-with-python</a></li>
+<li><a href="https://www.cnblogs.com/rjzheng/p/9041659.html" target="_blank" rel="noopener">https://www.cnblogs.com/rjzheng/p/9041659.html</a></li>
+<li><a href="https://docs.microsoft.com/en-us/azure/architecture/patterns/cache-aside" target="_blank" rel="noopener">https://docs.microsoft.com/en-us/azure/architecture/patterns/cache-aside</a></li>
+<li><a href="https://codeahoy.com/2017/08/11/caching-strategies-and-how-to-choose-the-right-one/" target="_blank" rel="noopener">https://codeahoy.com/2017/08/11/caching-strategies-and-how-to-choose-the-right-one/</a></li>
+<li><a href="https://docs.aws.amazon.com/AmazonElastiCache/latest/red-ug/Strategies.html" target="_blank" rel="noopener">https://docs.aws.amazon.com/AmazonElastiCache/latest/red-ug/Strategies.html</a></li>
+<li><a href="https://dzone.com/articles/using-read-through-amp-write-through-in-distribute" target="_blank" rel="noopener">https://dzone.com/articles/using-read-through-amp-write-through-in-distribute</a></li>
+</ul>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://stephanietang.github.io/2018/03/01/Singleton-DesignPattern/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -570,7 +784,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://stephanietang.github.io/2017/12/01/why-SimpleDateFormat-is-not-thread-safe/">
+    <link itemprop="mainEntityOfPage" href="http://stephanietang.github.io/2017/12/01/Why-SimpleDateFormat-Is-Not-Thread-Safe/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Stephanie Tang">
@@ -589,7 +803,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2017/12/01/why-SimpleDateFormat-is-not-thread-safe/" itemprop="url">为什么SimpleDateFormat不是线程安全的</a></h1>
+                <a class="post-title-link" href="/2017/12/01/Why-SimpleDateFormat-Is-Not-Thread-Safe/" itemprop="url">为什么SimpleDateFormat不是线程安全的</a></h1>
         
 
         <div class="post-meta">
@@ -737,7 +951,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://stephanietang.github.io/2017/11/30/blog-from-today/">
+    <link itemprop="mainEntityOfPage" href="http://stephanietang.github.io/2017/11/30/Blog-From-Today/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Stephanie Tang">
@@ -756,7 +970,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2017/11/30/blog-from-today/" itemprop="url">从今天开始写博客</a></h1>
+                <a class="post-title-link" href="/2017/11/30/Blog-From-Today/" itemprop="url">从今天开始写博客</a></h1>
         
 
         <div class="post-meta">
@@ -890,7 +1104,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives/">
-                <span class="site-state-item-count">4</span>
+                <span class="site-state-item-count">5</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -903,7 +1117,7 @@
             
             <div class="site-state-item site-state-tags">
               
-                <span class="site-state-item-count">6</span>
+                <span class="site-state-item-count">7</span>
                 <span class="site-state-item-name">标签</span>
               
             </div>
