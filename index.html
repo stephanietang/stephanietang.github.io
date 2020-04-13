@@ -259,7 +259,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://stephanietang.github.io/2020/04/13/Cache-Patterns/">
+    <link itemprop="mainEntityOfPage" href="http://stephanietang.github.io/2020/04/13/cache-pattern/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Stephanie Tang">
@@ -278,7 +278,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2020/04/13/Cache-Patterns/" itemprop="url">缓存模式以及缓存的数据一致性</a></h1>
+                <a class="post-title-link" href="/2020/04/13/cache-pattern/" itemprop="url">缓存模式以及缓存的数据一致性</a></h1>
         
 
         <div class="post-meta">
@@ -330,8 +330,8 @@
       
         
           
-            <p>缓存由于其高性能，支持高并发以及高可用的特性，在高并发的项目中不可或缺。被大家广泛使用的有Redis，Memcached等。本文主要探讨几种常见的缓存的读写模式，以及如何来保证缓存和数据库的数据一致性。</p>
-<h2 id="Cache-Aside"><a href="#Cache-Aside" class="headerlink" title="Cache-Aside"></a>Cache-Aside</h2><p>Cache-Aside可能是系统中最常见的一种模式。它是一种控制逻辑都实现在应用程序中的模式。缓存不和数据库直接进行交互，而是由应用程序来同时和缓存以及数据库打交道。Cache-Aside的名字正体现了这个模式，Cache在应用的一旁(aside)。</p>
+            <p>缓存由于其高性能，支持高并发的特性，在高并发的项目中不可或缺。被大家广泛使用的有Redis，Memcached等。本文主要探讨几种常见的缓存的读写模式，以及如何来保证缓存和数据库的数据一致性。</p>
+<h2 id="Cache-Aside"><a href="#Cache-Aside" class="headerlink" title="Cache-Aside"></a>Cache-Aside</h2><p>Cache-Aside可能是项目中最常见的一种模式。它是一种控制逻辑都实现在应用程序中的模式。缓存不和数据库直接进行交互，而是由应用程序来同时和缓存以及数据库打交道。Cache-Aside的名字正体现了这个模式，Cache在应用的一旁(aside)。</p>
 <p>读数据时</p>
 <ol>
 <li>程序需要判断缓存中是否已经存在数据。</li>
@@ -424,6 +424,7 @@
 <li><a href="https://codeahoy.com/2017/08/11/caching-strategies-and-how-to-choose-the-right-one/" target="_blank" rel="noopener">https://codeahoy.com/2017/08/11/caching-strategies-and-how-to-choose-the-right-one/</a></li>
 <li><a href="https://docs.aws.amazon.com/AmazonElastiCache/latest/red-ug/Strategies.html" target="_blank" rel="noopener">https://docs.aws.amazon.com/AmazonElastiCache/latest/red-ug/Strategies.html</a></li>
 <li><a href="https://dzone.com/articles/using-read-through-amp-write-through-in-distribute" target="_blank" rel="noopener">https://dzone.com/articles/using-read-through-amp-write-through-in-distribute</a></li>
+<li><a href="https://coolshell.cn/articles/17416.html" target="_blank" rel="noopener">https://coolshell.cn/articles/17416.html</a></li>
 </ul>
 
           
@@ -473,7 +474,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://stephanietang.github.io/2018/03/01/Singleton-DesignPattern/">
+    <link itemprop="mainEntityOfPage" href="http://stephanietang.github.io/2018/03/01/singleton-desing-pattern/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Stephanie Tang">
@@ -492,7 +493,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2018/03/01/Singleton-DesignPattern/" itemprop="url">单例设计模式</a></h1>
+                <a class="post-title-link" href="/2018/03/01/singleton-desing-pattern/" itemprop="url">单例设计模式</a></h1>
         
 
         <div class="post-meta">
@@ -563,7 +564,7 @@
 <h3 id="性能比较"><a href="#性能比较" class="headerlink" title="性能比较"></a>性能比较</h3><p>这里有一篇关于几种写法的性能比较：<a href="http://literatejava.com/jvm/fastest-threadsafe-singleton-jvm/" target="_blank" rel="noopener">Fastest Thread-safe Singleton in Java</a></p>
 <p>但是没有出乎意料，对于懒汉式的写法中，静态内部类 &gt; 双检锁 &gt; synchronized getInstance方法（本文没有讨论，因为性能实在是堪忧）。这里没有比较enum，留给有兴趣的童鞋吧。</p>
 <p>如果一定要实现一个单例设计模式，就我而言，我会采用enum的写法。</p>
-<h2 id="为什么单例模式是一个反模式？"><a href="#为什么单例模式是一个反模式？" class="headerlink" title="为什么单例模式是一个反模式？"></a>为什么单例模式是一个反模式？</h2><p>那么讨论完单例模式的几种实现方法，我们再来说明为什么它已然已经成为业界共识的反模式了。纳尼？前面铺垫那么多，不是白讨论了吗？！虽然是浪费了很多口舌，但是单例模式依然有他的应用场景，我们后面会说。</p>
+<h3 id="为什么单例模式是一个反模式？"><a href="#为什么单例模式是一个反模式？" class="headerlink" title="为什么单例模式是一个反模式？"></a>为什么单例模式是一个反模式？</h3><p>那么讨论完单例模式的几种实现方法，我们再来说明为什么它已然已经成为业界共识的反模式了。纳尼？前面铺垫那么多，不是白讨论了吗？！虽然是浪费了很多口舌，但是单例模式依然有他的应用场景，我们后面会说。</p>
 <p>首先我们要搞清楚两个概念：单例模式和单例。前者是一种设计模式，它的特征是：1)私有的构造器，2)通过<code>Singleton.getInstance()</code>方法获得该类的唯一实例。而单例指的是一个类有且只有一个实例，可以通过依赖注入来实现。Spring中，我们常用的service或者dao通常就是典型的单例，它们通过BeanFactory来进行依赖注入，来保证应用中引用的都是一个类的同一个实例。</p>
 <p>要注意的是，Spring中默认的singleton scope和严格意义上单例还是有区别的，来自Spring的文档中指出：</p>
 <blockquote>
@@ -575,7 +576,7 @@
 <li>它通常是一个复杂的object，维护着一个全局的状态，而全局的状态使得结果不可预测</li>
 <li>由于是私有构造器，单元测试变得困难</li>
 </ul>
-<h2 id="应用场景"><a href="#应用场景" class="headerlink" title="应用场景"></a>应用场景</h2><p>基本的原则就是<strong>不要自己实现单例模式</strong>，然而依然有场景（为数不多的）适合使用单例模式，譬如logging：</p>
+<h3 id="应用场景"><a href="#应用场景" class="headerlink" title="应用场景"></a>应用场景</h3><p>基本的原则就是<strong>不要自己实现单例模式</strong>，然而依然有场景（为数不多的）适合使用单例模式，譬如logging：</p>
 <ul>
 <li>客户代码需要一个全局的logging service来发送请求去写log</li>
 <li>多个监听器(listener)可以注册同一个logging service</li>
@@ -638,7 +639,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://stephanietang.github.io/2017/12/02/ThreadLocal/">
+    <link itemprop="mainEntityOfPage" href="http://stephanietang.github.io/2017/12/02/threadLocal/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Stephanie Tang">
@@ -657,7 +658,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2017/12/02/ThreadLocal/" itemprop="url">深入理解Java中的ThreadLocal</a></h1>
+                <a class="post-title-link" href="/2017/12/02/threadLocal/" itemprop="url">深入理解Java中的ThreadLocal</a></h1>
         
 
         <div class="post-meta">
@@ -784,7 +785,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://stephanietang.github.io/2017/12/01/Why-SimpleDateFormat-Is-Not-Thread-Safe/">
+    <link itemprop="mainEntityOfPage" href="http://stephanietang.github.io/2017/12/02/threadlocal/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Stephanie Tang">
@@ -803,7 +804,153 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2017/12/01/Why-SimpleDateFormat-Is-Not-Thread-Safe/" itemprop="url">为什么SimpleDateFormat不是线程安全的</a></h1>
+                <a class="post-title-link" href="/2017/12/02/threadlocal/" itemprop="url">深入理解Java中的ThreadLocal</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-12-02T09:22:52+08:00">
+                2017-12-02
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="ThreadLocal的实现原理"><a href="#ThreadLocal的实现原理" class="headerlink" title="ThreadLocal的实现原理"></a>ThreadLocal的实现原理</h2><ol>
+<li><p>每个<code>Thread</code>中都维护有一个<code>ThreadLocalMap</code></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Thread</span> <span class="keyword">implements</span> <span class="title">Runnable</span> </span>&#123;</span><br><span class="line">...</span><br><span class="line">    <span class="comment">/* ThreadLocal values pertaining to this thread. This map is maintained</span></span><br><span class="line"><span class="comment">     * by the ThreadLocal class. */</span></span><br><span class="line">    ThreadLocal.ThreadLocalMap threadLocals = <span class="keyword">null</span>;</span><br><span class="line"></span><br><span class="line">...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>这个<code>ThreadLocalMap</code>的<code>key</code>是<code>ThreadLocal</code>实例本身，<code>value</code>就是每个线程要独立使用的Object。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ThreadLocal</span>&lt;<span class="title">T</span>&gt; </span>&#123;</span><br><span class="line">...    </span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">createMap</span><span class="params">(Thread t, T firstValue)</span> </span>&#123;</span><br><span class="line">        t.threadLocals = <span class="keyword">new</span> ThreadLocalMap(<span class="keyword">this</span>, firstValue);</span><br><span class="line">    &#125;</span><br><span class="line">...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>每个<code>Thread</code>要获得Object的时候，首先会调用<code>getMap(Thread t)</code>找到当前线程的<code>ThreadLocalMap</code>，然后使用<code>ThreadLocal</code>实例作为<code>key</code>，找到对应的<code>value</code>，也就是要找的Object。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ThreadLocal</span>&lt;<span class="title">T</span>&gt; </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> T <span class="title">get</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        Thread t = Thread.currentThread();</span><br><span class="line">        ThreadLocalMap map = getMap(t);</span><br><span class="line">        <span class="keyword">if</span> (map != <span class="keyword">null</span>) &#123;</span><br><span class="line">            ThreadLocalMap.Entry e = map.getEntry(<span class="keyword">this</span>);</span><br><span class="line">            <span class="keyword">if</span> (e != <span class="keyword">null</span>)</span><br><span class="line">                <span class="keyword">return</span> (T)e.value;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> setInitialValue();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function">ThreadLocalMap <span class="title">getMap</span><span class="params">(Thread t)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> t.threadLocals;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> T <span class="title">setInitialValue</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        T value = initialValue();</span><br><span class="line">        Thread t = Thread.currentThread();</span><br><span class="line">        ThreadLocalMap map = getMap(t);</span><br><span class="line">        <span class="keyword">if</span> (map != <span class="keyword">null</span>)</span><br><span class="line">            map.set(<span class="keyword">this</span>, value);</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">            createMap(t, value);</span><br><span class="line">        <span class="keyword">return</span> value;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li><p>这样每个线程都有独立使用的Object，就不会有线程之间相互干扰的问题，也不需要同步，因为不存在线程共享。</p>
+</li>
+</ol>
+<h2 id="ThreadLocal的内存泄漏问题"><a href="#ThreadLocal的内存泄漏问题" class="headerlink" title="ThreadLocal的内存泄漏问题"></a>ThreadLocal的内存泄漏问题</h2><p>从源代码中，我们可以知道<code>ThreadLocalMap.Enty</code>对key（也就是<code>ThreadLocal</code>实例）是<code>WeakReference</code>，那么GC会将ThreadLocal回收，然而Entry的value不会被回收。但是如果线程及时结束，因为<code>ThreadLocalMap</code>和<code>Thread</code>的生命周期是一样的，所以ThreadLocalMap也会被回收，也就不会有内存泄漏的问题。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">ThreadLocalMap</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * The entries in this hash map extend WeakReference, using</span></span><br><span class="line"><span class="comment">     * its main ref field as the key (which is always a</span></span><br><span class="line"><span class="comment">     * ThreadLocal object).  Note that null keys (i.e. entry.get()</span></span><br><span class="line"><span class="comment">     * == null) mean that the key is no longer referenced, so the</span></span><br><span class="line"><span class="comment">     * entry can be expunged from table.  Such entries are referred to</span></span><br><span class="line"><span class="comment">     * as "stale entries" in the code that follows.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">Entry</span> <span class="keyword">extends</span> <span class="title">WeakReference</span>&lt;<span class="title">ThreadLocal</span>&gt; </span>&#123;</span><br><span class="line">        <span class="comment">/** The value associated with this ThreadLocal. */</span></span><br><span class="line">        Object value;</span><br><span class="line"></span><br><span class="line">        Entry(ThreadLocal k, Object v) &#123;</span><br><span class="line">            <span class="keyword">super</span>(k);</span><br><span class="line">            value = v;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>问题就出在假如使用了线程池，线程池中的线程完成任务后还会继续放回线程池而不会结束，这样就造成了泄漏：value中的Object虽然不会再被访问到(因为作为key的ThreadLocal已经被回收了)，但是由于ThreadLocalMap.Entry对value还存在强引用，所以value不会被回收，而Thread又一直存活，这样value就永远无法被回收了。</p>
+<h2 id="解决ThreadLocal内存泄漏的最佳实践"><a href="#解决ThreadLocal内存泄漏的最佳实践" class="headerlink" title="解决ThreadLocal内存泄漏的最佳实践"></a>解决ThreadLocal内存泄漏的最佳实践</h2><p>解决方案一：不在有线程池的web应用中使用ThreadLocal</p>
+<p>解决方案二：如果一定要在有线程池的web应用中使用ThreadLocal，那么在线程执行完任务之前，要调用<code>ThreadLocal.remove()</code>来清除value</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">try</span> &#123;</span><br><span class="line">    threadLocal.set(value);</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">finally</span> &#123;</span><br><span class="line">    threadLocal.remove();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>参考：</p>
+<ul>
+<li><a href="http://blog.xiaohansong.com/2016/08/06/ThreadLocal-memory-leak/" target="_blank" rel="noopener">深入分析 ThreadLocal 内存泄漏问题</a></li>
+<li><a href="http://niklasschlimm.blogspot.hk/2012/04/threading-stories-threadlocal-in-web.html" target="_blank" rel="noopener">Threading stories: ThreadLocal in web applications</a></li>
+<li><a href="https://github.com/dropwizard/metrics/issues/742" target="_blank" rel="noopener">https://github.com/dropwizard/metrics/issues/742</a></li>
+<li><a href="https://wiki.apache.org/tomcat/MemoryLeakProtection" target="_blank" rel="noopener">https://wiki.apache.org/tomcat/MemoryLeakProtection</a></li>
+</ul>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://stephanietang.github.io/2017/12/01/why-simpledateformat-not-thread-safe/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Stephanie Tang">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Stephanie Tang's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2017/12/01/why-simpledateformat-not-thread-safe/" itemprop="url">为什么SimpleDateFormat不是线程安全的</a></h1>
         
 
         <div class="post-meta">
@@ -951,7 +1098,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://stephanietang.github.io/2017/11/30/Blog-From-Today/">
+    <link itemprop="mainEntityOfPage" href="http://stephanietang.github.io/2017/11/30/blog-from-today/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Stephanie Tang">
@@ -970,7 +1117,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2017/11/30/Blog-From-Today/" itemprop="url">从今天开始写博客</a></h1>
+                <a class="post-title-link" href="/2017/11/30/blog-from-today/" itemprop="url">从今天开始写博客</a></h1>
         
 
         <div class="post-meta">
@@ -1104,7 +1251,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives/">
-                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-count">6</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>

@@ -97,11 +97,11 @@
 <meta name="description" content="单例设计模式(Singleton Design Pattern)指的是实现一个类，在应用中只有唯一一个实例。但现在已经成为业界共识，它成为了反模式的代表。这篇文章先讨论实现单例模式的几种方式，然后讨论为什么它是一种反模式。以及它的应用场景。 我们先来讨论单例模式的几种实现方法。 饿汉式(Eager Initialization）12345678910public class EagerInitia">
 <meta property="og:type" content="article">
 <meta property="og:title" content="单例设计模式">
-<meta property="og:url" content="http://stephanietang.github.io/2018/03/01/Singleton-DesignPattern/index.html">
+<meta property="og:url" content="http://stephanietang.github.io/2018/03/01/singleton-desing-pattern/index.html">
 <meta property="og:site_name" content="Stephanie Tang&#39;s Blog">
 <meta property="og:description" content="单例设计模式(Singleton Design Pattern)指的是实现一个类，在应用中只有唯一一个实例。但现在已经成为业界共识，它成为了反模式的代表。这篇文章先讨论实现单例模式的几种方式，然后讨论为什么它是一种反模式。以及它的应用场景。 我们先来讨论单例模式的几种实现方法。 饿汉式(Eager Initialization）12345678910public class EagerInitia">
 <meta property="article:published_time" content="2018-03-01T01:22:52.000Z">
-<meta property="article:modified_time" content="2018-06-25T15:32:40.000Z">
+<meta property="article:modified_time" content="2020-04-13T09:07:21.224Z">
 <meta property="article:author" content="Stephanie Tang">
 <meta property="article:tag" content="Singleton">
 <meta property="article:tag" content="DesignPattern">
@@ -134,7 +134,7 @@
 
 
 
-  <link rel="canonical" href="http://stephanietang.github.io/2018/03/01/Singleton-DesignPattern/"/>
+  <link rel="canonical" href="http://stephanietang.github.io/2018/03/01/singleton-desing-pattern/"/>
 
 
 
@@ -263,7 +263,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://stephanietang.github.io/2018/03/01/Singleton-DesignPattern/">
+    <link itemprop="mainEntityOfPage" href="http://stephanietang.github.io/2018/03/01/singleton-desing-pattern/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Stephanie Tang">
@@ -349,7 +349,7 @@
 <h3 id="性能比较"><a href="#性能比较" class="headerlink" title="性能比较"></a>性能比较</h3><p>这里有一篇关于几种写法的性能比较：<a href="http://literatejava.com/jvm/fastest-threadsafe-singleton-jvm/" target="_blank" rel="noopener">Fastest Thread-safe Singleton in Java</a></p>
 <p>但是没有出乎意料，对于懒汉式的写法中，静态内部类 &gt; 双检锁 &gt; synchronized getInstance方法（本文没有讨论，因为性能实在是堪忧）。这里没有比较enum，留给有兴趣的童鞋吧。</p>
 <p>如果一定要实现一个单例设计模式，就我而言，我会采用enum的写法。</p>
-<h2 id="为什么单例模式是一个反模式？"><a href="#为什么单例模式是一个反模式？" class="headerlink" title="为什么单例模式是一个反模式？"></a>为什么单例模式是一个反模式？</h2><p>那么讨论完单例模式的几种实现方法，我们再来说明为什么它已然已经成为业界共识的反模式了。纳尼？前面铺垫那么多，不是白讨论了吗？！虽然是浪费了很多口舌，但是单例模式依然有他的应用场景，我们后面会说。</p>
+<h3 id="为什么单例模式是一个反模式？"><a href="#为什么单例模式是一个反模式？" class="headerlink" title="为什么单例模式是一个反模式？"></a>为什么单例模式是一个反模式？</h3><p>那么讨论完单例模式的几种实现方法，我们再来说明为什么它已然已经成为业界共识的反模式了。纳尼？前面铺垫那么多，不是白讨论了吗？！虽然是浪费了很多口舌，但是单例模式依然有他的应用场景，我们后面会说。</p>
 <p>首先我们要搞清楚两个概念：单例模式和单例。前者是一种设计模式，它的特征是：1)私有的构造器，2)通过<code>Singleton.getInstance()</code>方法获得该类的唯一实例。而单例指的是一个类有且只有一个实例，可以通过依赖注入来实现。Spring中，我们常用的service或者dao通常就是典型的单例，它们通过BeanFactory来进行依赖注入，来保证应用中引用的都是一个类的同一个实例。</p>
 <p>要注意的是，Spring中默认的singleton scope和严格意义上单例还是有区别的，来自Spring的文档中指出：</p>
 <blockquote>
@@ -361,7 +361,7 @@
 <li>它通常是一个复杂的object，维护着一个全局的状态，而全局的状态使得结果不可预测</li>
 <li>由于是私有构造器，单元测试变得困难</li>
 </ul>
-<h2 id="应用场景"><a href="#应用场景" class="headerlink" title="应用场景"></a>应用场景</h2><p>基本的原则就是<strong>不要自己实现单例模式</strong>，然而依然有场景（为数不多的）适合使用单例模式，譬如logging：</p>
+<h3 id="应用场景"><a href="#应用场景" class="headerlink" title="应用场景"></a>应用场景</h3><p>基本的原则就是<strong>不要自己实现单例模式</strong>，然而依然有场景（为数不多的）适合使用单例模式，譬如logging：</p>
 <ul>
 <li>客户代码需要一个全局的logging service来发送请求去写log</li>
 <li>多个监听器(listener)可以注册同一个logging service</li>
@@ -408,7 +408,7 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2017/12/02/ThreadLocal/" rel="next" title="深入理解Java中的ThreadLocal">
+              <a href="/2017/12/02/threadLocal/" rel="next" title="深入理解Java中的ThreadLocal">
                 <i class="fa fa-chevron-left"></i> 深入理解Java中的ThreadLocal
               </a>
             
@@ -418,7 +418,7 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2020/04/13/Cache-Patterns/" rel="prev" title="缓存模式以及缓存的数据一致性">
+              <a href="/2020/04/13/cache-pattern/" rel="prev" title="缓存模式以及缓存的数据一致性">
                 缓存模式以及缓存的数据一致性 <i class="fa fa-chevron-right"></i>
               </a>
             
@@ -497,7 +497,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives/">
-                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-count">6</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -545,7 +545,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#饿汉式-Eager-Initialization）"><span class="nav-number">1.</span> <span class="nav-text">饿汉式(Eager Initialization）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#双检锁-Double-Checked-Locking"><span class="nav-number">2.</span> <span class="nav-text">双检锁(Double Checked Locking)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#静态内部类-Static-Inner-Class"><span class="nav-number">3.</span> <span class="nav-text">静态内部类(Static Inner Class)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Enum"><span class="nav-number">4.</span> <span class="nav-text">Enum</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#性能比较"><span class="nav-number">5.</span> <span class="nav-text">性能比较</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#为什么单例模式是一个反模式？"><span class="nav-number"></span> <span class="nav-text">为什么单例模式是一个反模式？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#应用场景"><span class="nav-number"></span> <span class="nav-text">应用场景</span></a></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#饿汉式-Eager-Initialization）"><span class="nav-number">1.</span> <span class="nav-text">饿汉式(Eager Initialization）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#双检锁-Double-Checked-Locking"><span class="nav-number">2.</span> <span class="nav-text">双检锁(Double Checked Locking)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#静态内部类-Static-Inner-Class"><span class="nav-number">3.</span> <span class="nav-text">静态内部类(Static Inner Class)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Enum"><span class="nav-number">4.</span> <span class="nav-text">Enum</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#性能比较"><span class="nav-number">5.</span> <span class="nav-text">性能比较</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#为什么单例模式是一个反模式？"><span class="nav-number">6.</span> <span class="nav-text">为什么单例模式是一个反模式？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#应用场景"><span class="nav-number">7.</span> <span class="nav-text">应用场景</span></a></li></ol></div>
             
 
           </div>
